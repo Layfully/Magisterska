@@ -1,158 +1,171 @@
-# Ewolucyjne Projektowanie Uk�ad�w Klawiatury (Praca Magisterska)
+# Ewolucyjne Projektowanie Układów Klawiatury (Praca Magisterska)
 
-Ten projekt, realizowany w ramach pracy magisterskiej, skupia si� na dw�ch g��wnych zadaniach:
+Ten projekt, realizowany w ramach pracy magisterskiej, skupia się na dwóch głównych zadaniach:
 
-1. **Pobieraniu i przygotowaniu danych do analizy efektywno�ci uk�ad�w klawiatury.**
-2. **Wykorzystaniu algorytmu genetycznego do optymalizacji uk�ad�w klawiatury w celu poprawy efektywno�ci pisania.**
+1. **Pobieraniu i przygotowaniu danych do analizy efektywności układów klawiatury.**
+2. **Wykorzystaniu algorytmu genetycznego do optymalizacji układów klawiatury w celu poprawy efektywności pisania.**
 
-Do implementacji algorytmu genetycznego wykorzystywana jest biblioteka GeneticSharp, a do analizy wydajno�ci - BenchmarkDotNet.
-Dodatkowo, projekt zawiera skrypt Jupyter Notebook do analizy danych i wizualizacji wynik�w.
+Do implementacji algorytmu genetycznego wykorzystywana jest biblioteka GeneticSharp, a do analizy wydajności - BenchmarkDotNet.
+Dodatkowo, projekt zawiera skrypt Jupyter Notebook do analizy danych i wizualizacji wyników.
 
-## Struktura Rozwi�zania
+## Struktura Rozwiązania
 
-Rozwi�zanie sk�ada si� z czterech projekt�w:
+Rozwiązanie składa się z trzech projektów:
 
 ### 1. RepoDownloader
 
-Ten projekt jest odpowiedzialny za pobieranie i filtrowanie plik�w z repozytori�w GitHub.
+Ten projekt jest odpowiedzialny za pobieranie i filtrowanie plików z repozytoriów GitHub.
 
 #### **Opis:**
 
-Program pobiera repozytoria z listy zdefiniowanej w pliku `repositories.json`. Nast�pnie, dla ka�dego repozytorium, wykonywane s� nast�puj�ce kroki:
+Program pobiera repozytoria z listy zdefiniowanej w pliku `repositories.json`. Następnie, dla każdego repozytorium, wykonywane są następujące kroki:
 
-1. **Klonowanie repozytorium:** Repozytorium jest klonowane lokalnie za pomoc� komendy `git clone` z opcjami `--filter=blob:none --no-checkout --depth 1 --sparse`, co pozwala na pobranie struktury repozytorium bez pobierania zawarto�ci plik�w i tylko z ostatniego commita.
-2. **Filtrowanie plik�w:** Z u�yciem `git status --porcelain` sprawdzane s� rozszerzenia plik�w w repozytorium. Nast�pnie pliki s� filtrowane na podstawie tablicy dozwolonych rozszerze�: `cs`, `xaml`, `resx`, `md`, `ps1`, `csx`, `json`, `xml`, `yml`, `aspx`, `ascx`, `master`, `cshtml`, `js`, `ts`, `web.config`, `css`, `bat`, `psi`, `razor`, `sql`.
-3. **Pobieranie wybranych plik�w:** Je�li w repozytorium znajduj� si� pliki o dozwolonych rozszerzeniach, to s� one pobierane do archiwum ZIP za pomoc� polecenia `git archive`.
-4. **Rozpakowanie i przeniesienie plik�w:** Archiwum ZIP jest rozpakowywane, a nast�pnie pliki o dozwolonych rozszerzeniach s� przenoszone do docelowego katalogu (`D:\\CSharpDataset`), zachowuj�c struktur� katalog�w z repozytorium. W przypadku konflikt�w nazw plik�w, do nazwy pliku dodawany jest unikalny identyfikator.
-5. **Usuwanie sklonowanego repozytorium** Po przeniesieniu plik�w, tymczasowe repozytorium jest usuwane.
-6. **Zapisywanie post�pu:** Post�p przetwarzania jest zapisywany w pliku `progress.txt`, dzi�ki czemu w przypadku przerwania procesu mo�na go wznowi� od ostatniego przetworzonego repozytorium.
+1. **Klonowanie repozytorium:**  Repozytorium jest klonowane lokalnie za pomocą komendy `git clone` z opcjami `--filter=blob:none --no-checkout --depth 1 --sparse`, co pozwala na pobranie struktury repozytorium bez pobierania zawartości plików i tylko z ostatniego commita.
+2. **Filtrowanie plików:** Z użyciem `git status --porcelain` sprawdzane są rozszerzenia plików w repozytorium. Następnie pliki są filtrowane na podstawie tablicy dozwolonych rozszerzeń: `cs`, `xaml`, `resx`, `md`, `ps1`, `csx`, `json`, `xml`, `yml`, `aspx`, `ascx`, `master`, `cshtml`, `js`, `ts`, `web.config`, `css`, `bat`, `psi`, `razor`, `sql`.
+3. **Pobieranie wybranych plików:** Jeśli w repozytorium znajdują się pliki o dozwolonych rozszerzeniach, to są one pobierane do archiwum ZIP za pomocą polecenia `git archive`.
+4. **Rozpakowanie i przeniesienie plików:** Archiwum ZIP jest rozpakowywane, a następnie pliki o dozwolonych rozszerzeniach są przenoszone do docelowego katalogu (`D:\\CSharpDataset`), zachowując strukturę katalogów z repozytorium. W przypadku konfliktów nazw plików, do nazwy pliku dodawany jest unikalny identyfikator.
+5. **Usuwanie sklonowanego repozytorium** Po przeniesieniu plików, tymczasowe repozytorium jest usuwane.
+6. **Zapisywanie postępu:** Postęp przetwarzania jest zapisywany w pliku `progress.txt`, dzięki czemu w przypadku przerwania procesu można go wznowić od ostatniego przetworzonego repozytorium.
+
+#### **Pliki:**
+
+-   **Program.cs:** Główny plik programu, zawierający logikę pobierania i przetwarzania repozytoriów.
+-   **CommandExecutor.cs:** Klasa pomocnicza do wykonywania poleceń systemowych.
+-   **Extensions.cs:** Zawiera metody rozszerzające, m.in. do formatowania ścieżek dla wiersza poleceń.
+-   **RepositoryEntry.cs:** Definiuje strukturę danych dla wpisu repozytorium w pliku `repositories.json`.
 
 #### **Uruchomienie:**
 
-Przed uruchomieniem nale�y:
+Przed uruchomieniem należy:
 
-1. Skonfigurowa� �cie�ki w pliku `Program.cs`:
-   - `targetDirectory`: Katalog docelowy dla pobranych plik�w (domy�lnie `D:\\CSharpDataset`).
-   - `cloneDirectory`: Katalog tymczasowy do klonowania repozytori�w (domy�lnie `C:\\Clones`).
-   - `jsonFilePath`: �cie�ka do pliku `repositories.json` z list� repozytori�w (domy�lnie `C:\\dataset\\repositories.json`).
-   - `progressFilePath`: �cie�ka do pliku `progress.txt` z post�pem przetwarzania (domy�lnie `C:\\dataset\\progress.txt`).
-2. Przygotowa� plik `repositories.json` z list� repozytori�w do pobrania. Ka�dy wpis powinien mie� format:
+1. Skonfigurować ścieżki w pliku `Program.cs`:
+    -   `targetDirectory`: Katalog docelowy dla pobranych plików (domyślnie `D:\\CSharpDataset`).
+    -   `cloneDirectory`: Katalog tymczasowy do klonowania repozytoriów (domyślnie `C:\\Clones`).
+    -   `jsonFilePath`: Ścieżka do pliku `repositories.json` z listą repozytoriów (domyślnie `C:\\dataset\\repositories.json`).
+    -   `progressFilePath`: Ścieżka do pliku `progress.txt` z postępem przetwarzania (domyślnie `C:\\dataset\\progress.txt`).
+2. Przygotować plik `repositories.json` z listą repozytoriów do pobrania. Każdy wpis powinien mieć format:
 
-   ```json
-   { "name": "nazwa_repozytorium", "url": "adres_api_repozytorium" }
-   ```
+    ```json
+    {"name": "nazwa_repozytorium", "url": "adres_api_repozytorium"}
+    ```
 
-   Przyk�ad: `{"name": "StephenCleary/AsyncEx", "url": "https://api.github.com/repos/StephenCleary/AsyncEx"}`
+    Przykład: `{"name": "StephenCleary/AsyncEx", "url": "https://api.github.com/repos/StephenCleary/AsyncEx"}`
+3. Upewnij sie, że masz zainstalowanego klienta Git i jest on dostępny w zmiennej środowiskowej `PATH`.
+4. Uruchomić projekt `RepoDownloader`.
 
-3. Upewnij sie, �e masz zainstalowanego klienta Git i jest on dost�pny w zmiennej �rodowiskowej `PATH`.
-4. Uruchomi� projekt `RepoDownloader`.
+### 2. Projekt Główny (Ewolucyjne Projektowanie Układów Klawiatury)
 
-### 2. Projekt G��wny (master_thesis)
-
-Ten projekt wykorzystuje pobrane dane do optymalizacji uk�adu klawiatury za pomoc� algorytmu genetycznego.
+Ten projekt wykorzystuje pobrane dane do optymalizacji układu klawiatury za pomocą algorytmu genetycznego.
 
 #### **Opis:**
 
-Projekt implementuje algorytm genetyczny do optymalizacji uk�ad�w klawiatury. Algorytm ten iteracyjnie ewoluuje populacj� uk�ad�w klawiatury, d���c do znalezienia takiego, kt�ry minimalizuje wysi�ek i czas potrzebny do pisania. Wykorzystuje on zestaw danych przygotowany przez projekt `RepoDownloader` do oceny efektywno�ci generowanych uk�ad�w.
+Projekt implementuje algorytm genetyczny do optymalizacji układów klawiatury. Algorytm ten iteracyjnie ewoluuje populację układów klawiatury, dążąc do znalezienia takiego, który minimalizuje wysiłek i czas potrzebny do pisania. Wykorzystuje on zestaw danych przygotowany przez projekt `RepoDownloader` do oceny efektywności generowanych układów.
+
+#### **Pliki:**
+
+-   **Program.cs:** Zawiera główny punkt wejścia aplikacji. Inicjalizuje i uruchamia algorytm genetyczny.
+-   **KeyboardChromosome.cs:** Reprezentuje chromosom w algorytmie genetycznym, który odpowiada układowi klawiatury.
+-   **KeyboardFitness.cs:** Definiuje funkcję fitness używaną do oceny efektywności układu klawiatury.
+-   **KeyboardCrossover.cs:** Implementuje operację krzyżowania, która łączy dwa chromosomy rodzicielskie, tworząc potomstwo.
+-   **KeyboardMutation.cs:** Implementuje operację mutacji, która wprowadza losowe zmiany w chromosomie.
+-   **FitnessScoreCalculator.cs:** Zawiera metody do obliczania różnych metryk związanych z efektywnością pisania, takich jak odległość podróży palców, siła nacisku palców, naprzemienność rąk i kierunek uderzenia.
+-   **DatasetLoader.cs:** Zapewnia funkcjonalność do ładowania zestawu danych plików tekstowych do oceny układów klawiatury.
+-   **Benchmark.cs:** Zawiera testy benchmarkowe do pomiaru wydajności określonych fragmentów kodu.
 
 #### **Algorytm Genetyczny**
 
-Rdzeniem projektu jest algorytm genetyczny, kt�ry iteracyjnie ewoluuje populacj� uk�ad�w klawiatury, aby znale�� optymalne rozwi�zanie. Algorytm wykorzystuje nast�puj�ce komponenty:
+Rdzeniem projektu jest algorytm genetyczny, który iteracyjnie ewoluuje populację układów klawiatury, aby znaleźć optymalne rozwiązanie. Algorytm wykorzystuje następujące komponenty:
 
-- **Populacja:** Zbi�r osobnik�w `KeyboardChromosome` reprezentuj�cych r�ne uk�ady klawiatury.
-- **Funkcja Fitness:** Klasa `KeyboardFitness` ocenia dopasowanie ka�dego chromosomu na podstawie metryk, takich jak odleg�o�� podr�y palca, wsp�czynnik si�y nacisku palca, naprzemienno�� r�k i kierunek uderzenia. Wynik dopasowania jest obliczany przy u�yciu wa�onej kombinacji znormalizowanych wynik�w z tych metryk. Do normalizacji wynik�w u�ywany jest uk�ad QWERTY.
-- **Selekcja:** Metoda `EliteSelection` wybiera najlepiej przystosowane osobniki z populacji, aby sta�y si� rodzicami dla nast�pnego pokolenia.
-- **Krzy�owanie:** Metoda `KeyboardCrossover` ��czy dwa chromosomy rodzicielskie, aby wygenerowa� potomstwo z po��czeniem ich cech.
-- **Mutacja:** Metoda `KeyboardMutation` wprowadza losowe zmiany w genach chromosomu (literach), aby utrzyma� r�norodno�� w populacji.
-- **Warunek Zatrzymania:** `FitnessStagnationTermination` zatrzymuje algorytm, gdy dopasowanie najlepszego rozwi�zania nie poprawia si� przez okre�lon� liczb� pokole�.
+-   **Populacja:** Zbiór osobników `KeyboardChromosome` reprezentujących różne układy klawiatury.
+-   **Funkcja Fitness:** Klasa `KeyboardFitness` ocenia dopasowanie każdego chromosomu na podstawie metryk, takich jak odległość podróży palca, współczynnik siły nacisku palca, naprzemienność rąk i kierunek uderzenia. Wynik dopasowania jest obliczany przy użyciu ważonej kombinacji znormalizowanych wyników z tych metryk. Do normalizacji wyników używany jest układ QWERTY.
+-   **Selekcja:** Metoda `EliteSelection` wybiera najlepiej przystosowane osobniki z populacji, aby stały się rodzicami dla następnego pokolenia.
+-   **Krzyżowanie:** Metoda `KeyboardCrossover` łączy dwa chromosomy rodzicielskie, aby wygenerować potomstwo z połączeniem ich cech.
+-   **Mutacja:** Metoda `KeyboardMutation` wprowadza losowe zmiany w genach chromosomu (literach), aby utrzymać różnorodność w populacji.
+-   **Warunek Zatrzymania:** `FitnessStagnationTermination` zatrzymuje algorytm, gdy dopasowanie najlepszego rozwiązania nie poprawia się przez określoną liczbę pokoleń.
 
 #### **Ocena Dopasowania (Fitness)**
 
-Klasa `KeyboardFitness` oblicza dopasowanie uk�adu klawiatury na podstawie nast�puj�cych metryk:
+Klasa `KeyboardFitness` oblicza dopasowanie układu klawiatury na podstawie następujących metryk:
 
-- **Odleg�o�� Podr�y (Travel Distance):** Ca�kowita odleg�o��, jak� musz� pokona� palce, aby napisa� dany tekst. Mniejsza odleg�o�� jest lepsza.
-- **Wsp�czynnik Si�y Nacisku Palca (Finger Strength Factor):** Miara wysi�ku wymaganego do naci�ni�cia klawiszy, bior�c pod uwag� si�� ka�dego palca. Mniejszy wysi�ek jest lepszy.
-- **Naprzemienno�� R�k (Hand Alternation):** Cz�stotliwo�� prze��czania si� mi�dzy lew� a praw� r�k� podczas pisania. Wi�ksza naprzemienno�� jest generalnie lepsza.
-- **Kierunek Uderzenia (Hit Direction):** Cz�stotliwo�� naciskania klawiszy w "niew�a�ciwym" kierunku (np. przesuwanie palca wskazuj�cego w lewo na lewej r�ce). Mniejsza liczba uderze� w z�ym kierunku jest lepsza.
+-   **Odległość Podróży (Travel Distance):** Całkowita odległość, jaką muszą pokonać palce, aby napisać dany tekst. Mniejsza odległość jest lepsza.
+-   **Współczynnik Siły Nacisku Palca (Finger Strength Factor):** Miara wysiłku wymaganego do naciśnięcia klawiszy, biorąc pod uwagę siłę każdego palca. Mniejszy wysiłek jest lepszy.
+-   **Naprzemienność Rąk (Hand Alternation):** Częstotliwość przełączania się między lewą a prawą ręką podczas pisania. Większa naprzemienność jest generalnie lepsza.
+-   **Kierunek Uderzenia (Hit Direction):** Częstotliwość naciskania klawiszy w "niewłaściwym" kierunku (np. przesuwanie palca wskazującego w lewo na lewej ręce). Mniejsza liczba uderzeń w złym kierunku jest lepsza.
 
 #### **Zestaw Danych**
 
-Projekt wykorzystuje zestaw danych plik�w tekstowych, pobranych i przygotowanych przez projekt `RepoDownloader`, do oceny dopasowania uk�ad�w klawiatury. Klasa `DatasetLoader` jest odpowiedzialna za �adowanie tych plik�w z okre�lonego katalogu. Oczekuje si�, �e zestaw danych b�dzie mia� okre�lon� dystrybucj� typ�w plik�w:
+Projekt wykorzystuje zestaw danych plików tekstowych, pobranych i przygotowanych przez projekt `RepoDownloader`, do oceny dopasowania układów klawiatury. Klasa `DatasetLoader` jest odpowiedzialna za ładowanie tych plików z określonego katalogu. Oczekuje się, że zestaw danych będzie miał określoną dystrybucję typów plików:
 
-- 7,5% plik�w Markdown (.md)
-- 7,5% plik�w YAML (.yml)
-- 7,5% plik�w JSON (.json)
+-   7,5% plików Markdown (.md)
+-   7,5% plików YAML (.yml)
+-   7,5% plików JSON (.json)
 
-Modu� �aduj�cy pobiera do 3000 plik�w, zachowuj�c po��dany stosunek typ�w plik�w.
+Moduł ładujący pobiera do 3000 plików, zachowując pożądany stosunek typów plików.
 
-### 3. Projekt DatasetFiltering (Python)
+### 3. DatasetFiltering (Python)
 
-Ten projekt, napisany w Pythonie, s�u�y do wst�pnego filtrowania i przygotowania danych potrzebnych do zasilenia projektu `RepoDownloader`.
+Ten projekt, napisany w Pythonie, służy do wstępnego filtrowania i przygotowania danych potrzebnych do zasilenia projektu `RepoDownloader`.
 
 #### **Opis:**
 
-Skrypt przetwarza pliki JSON pobrane z GithubArchive, wykorzystuj�c Apache Spark do szybkiego przetwarzania du�ych zbior�w danych. Dla ka�dego pliku JSON:
+Skrypt przetwarza pliki JSON pobrane z GHTorrent, wykorzystując Apache Spark do szybkiego przetwarzania dużych zbiorów danych. Dla każdego pliku JSON:
 
 1. **Wczytanie danych:** Plik JSON jest wczytywany do DataFrame'u Spark.
-2. **Selekcja danych:** Tworzona jest tymczasowa tabela `github_data`, a nast�pnie wykonywane jest zapytanie SQL, kt�re wybiera unikalne pary `(nazwa_repozytorium, url_repozytorium)` spe�niaj�ce okre�lone warunki:
-   - Typ zdarzenia to `ForkEvent`, a j�zyk repozytorium to `C#` LUB
-   - Typ zdarzenia to `PullRequestEvent`, j�zyk repozytorium to `C#`, a liczba gwiazdek repozytorium jest wi�ksza ni� 10.
-3. **��czenie wynik�w:** Wyniki z ka�dego pliku s� ��czone w jeden DataFrame `all_results`.
-4. **Zapis wynik�w:** Co 10 przetworzonych plik�w, DataFrame `all_results` jest czyszczony z duplikat�w i zapisywany do pliku JSON w katalogu `output`.
+2. **Selekcja danych:** Tworzona jest tymczasowa tabela `github_data`, a następnie wykonywane jest zapytanie SQL, które wybiera unikalne pary `(nazwa_repozytorium, url_repozytorium)` spełniające określone warunki:
+    -   Typ zdarzenia to `ForkEvent`, a język repozytorium to `C#` LUB
+    -   Typ zdarzenia to `PullRequestEvent`, język repozytorium to `C#`, a liczba gwiazdek repozytorium jest większa niż 10.
+3. **Łączenie wyników:** Wyniki z każdego pliku są łączone w jeden DataFrame `all_results`.
+4. **Zapis wyników:** Co 10 przetworzonych plików, DataFrame `all_results` jest czyszczony z duplikatów i zapisywany do pliku JSON w katalogu `output`.
 
-Na koniec, po przetworzeniu wszystkich plik�w, ostateczny DataFrame `all_results` (bez duplikat�w) jest zapisywany do pliku `final_result_all.json`.
+Na koniec, po przetworzeniu wszystkich plików, ostateczny DataFrame `all_results` (bez duplikatów) jest zapisywany do pliku `final_result_all.json`.
 
 #### **Wymagania:**
 
-- Python 3.x
-- Apache Spark (PySpark)
+-   Python 3.x
+-   Apache Spark (PySpark)
 
 #### **Uruchomienie:**
 
 1. Zainstaluj wymagane biblioteki: `pip install pyspark`
-2. Skonfiguruj zmienn� `data_directory` w skrypcie, aby wskazywa�a na katalog z plikami JSON z GHTorrent.
+2. Skonfiguruj zmienną `data_directory` w skrypcie, aby wskazywała na katalog z plikami JSON z GHTorrent.
 3. Uruchom skrypt: `python <nazwa_skryptu>.py`
 
 #### **Uwagi:**
 
-- Skrypt zak�ada, �e pliki JSON z GithubArchive s� skompresowane gzipem i maj� rozszerzenie `.json.gz`.
-- Wyniki s� zapisywane w katalogu `output` w formacie JSON.
+-   Skrypt zakłada, że pliki JSON z GHTorrent są skompresowane gzipem i mają rozszerzenie `.json.gz`.
+-   Wyniki są zapisywane w katalogu `output` w formacie JSON.
 
-### 4. Projekt Analiza i Wizualizacja (Jupyter Notebook)
+### 4. Analiza i Wizualizacja (Jupyter Notebook)
 
-Ten projekt zawiera notebook Jupyter do analizy i wizualizacji uk�ad�w klawiatur.
+Ten projekt zawiera notebook Jupyter do analizy i wizualizacji danych.
 
 #### **Opis:**
 
 Notebook wykorzystuje biblioteki `pandas`, `matplotlib`, `seaborn`, `scikit-learn` i `pyLDAvis` do:
 
-1. **Wczytania i analizy statystyk plik�w:**
-
-   - Zlicza liczb� plik�w ka�dego typu (`.cs`, `.md`, `.ps1`, `.json` itp.) w zestawie danych.
-   - Tworzy wykres s�upkowy przedstawiaj�cy rozk�ad typ�w plik�w.
+1. **Wczytania i analizy statystyk plików:**
+    - Zlicza liczbę plików każdego typu (`.cs`, `.md`, `.ps1`, `.json` itp.) w zestawie danych.
+    - Tworzy wykres słupkowy przedstawiający rozkład typów plików.
 
 2. **Analizy TF-IDF:**
+    - Oblicza macierz TF-IDF (Term Frequency-Inverse Document Frequency) dla słów występujących w plikach.
+    - Wyświetla 10 najważniejszych terminów (słów) dla każdego dokumentu na podstawie ich wartości TF-IDF.
+    - Oblicza i wyświetla średnią i odchylenie standardowe częstotliwości występowania terminów we wszystkich dokumentach.
 
-   - Oblicza macierz TF-IDF (Term Frequency-Inverse Document Frequency) dla s��w wyst�puj�cych w plikach.
-   - Wy�wietla 10 najwa�niejszych termin�w (s��w) dla ka�dego dokumentu na podstawie ich warto�ci TF-IDF.
-   - Oblicza i wy�wietla �redni� i odchylenie standardowe cz�stotliwo�ci wyst�powania termin�w we wszystkich dokumentach.
-
-3. **Modelowania Temat�w (Topic Modeling):**
-
-   - Wykorzystuje algorytm Latent Dirichlet Allocation (LDA) do identyfikacji temat�w w zbiorze danych.
-   - Wy�wietla 6 zidentyfikowanych temat�w wraz z 10 najwa�niejszymi s�owami dla ka�dego tematu.
+3. **Modelowania Tematów (Topic Modeling):**
+    - Wykorzystuje algorytm Latent Dirichlet Allocation (LDA) do identyfikacji tematów w zbiorze danych.
+    - Wyświetla 6 zidentyfikowanych tematów wraz z 10 najważniejszymi słowami dla każdego tematu.
 
 4. **Wizualizacji Danych:**
+    - Tworzy wykresy słupkowe przedstawiające rozkład typów plików, najważniejsze terminy oraz wyniki TF-IDF.
+    - Generuje interaktywną wizualizację LDA za pomocą biblioteki `pyLDAvis`.
 
-   - Tworzy wykresy s�upkowe przedstawiaj�ce rozk�ad typ�w plik�w, najwa�niejsze terminy oraz wyniki TF-IDF.
-   - Generuje interaktywn� wizualizacj� LDA za pomoc� biblioteki `pyLDAvis`.
-
-5. **Analizy Uk�adu Klawiatury:**
-   - Oblicza i wy�wietla mapy ciep�a (heatmaps) dla r�nych uk�ad�w klawiatury (QWERTY, DVORAK, COLEMAK, COLEMAK DH) oraz dla wygenerowanych przez algorytm genetyczny uk�ad�w. Mapy ciep�a pokazuj� rozk�ad cz�sto�ci naciskania poszczeg�lnych klawiszy.
-   - Oblicza statystyki u�ycia klawiatury dla r�nych uk�ad�w, takie jak u�ycie �rodkowego rz�du, u�ycie lewej r�ki i u�ycie s�abych palc�w.
-   - Oblicza i wy�wietla odleg�o�� przebyt� przez palce podczas pisania dla r�nych uk�ad�w.
-   - Oblicza i wy�wietla wsp�czynnik si�y nacisku palca dla r�nych uk�ad�w.
-   - Oblicza i wy�wietla wska�niki naprzemienno�ci r�k i kierunku uderzenia dla r�nych uk�ad�w.
+5. **Analizy Układu Klawiatury:**
+    - Oblicza i wyświetla mapy ciepła (heatmaps) dla różnych układów klawiatury (QWERTY, DVORAK, COLEMAK, COLEMAK DH) oraz dla wygenerowanych przez algorytm genetyczny układów. Mapy ciepła pokazują rozkład częstości naciskania poszczególnych klawiszy.
+    - Oblicza statystyki użycia klawiatury dla różnych układów, takie jak użycie środkowego rzędu, użycie lewej ręki i użycie słabych palców.
+    - Oblicza i wyświetla odległość przebytą przez palce podczas pisania dla różnych układów.
+    - Oblicza i wyświetla współczynnik siły nacisku palca dla różnych układów.
+    - Oblicza i wyświetla wskaźniki naprzemienności rąk i kierunku uderzenia dla różnych układów.
 
 #### **Wymagania:**
 
@@ -161,91 +174,91 @@ Notebook wykorzystuje biblioteki `pandas`, `matplotlib`, `seaborn`, `scikit-lear
 
 #### **Uruchomienie:**
 
-1. Zainstaluj wymagane biblioteki (je�li jeszcze ich nie masz):
+1. Zainstaluj wymagane biblioteki (jeśli jeszcze ich nie masz):
 
-   ```bash
-   pip install pandas matplotlib seaborn scikit-learn gensim pyldavis wordcloud
-   ```
+    ```bash
+    pip install pandas matplotlib seaborn scikit-learn gensim pyldavis wordcloud
+    ```
 
-2. Otw�rz notebook Jupyter (`.ipynb` file) w �rodowisku Jupyter.
-3. Uruchom wszystkie kom�rki w notebooku.
+2. Otwórz notebook Jupyter (`.ipynb` file) w środowisku Jupyter.
+3. Uruchom wszystkie komórki w notebooku.
 
 #### **Uwagi:**
 
-- Upewnij si�, �e �cie�ka do katalogu z danymi (`dataset_path`) jest poprawnie ustawiona w pierwszej kom�rce kodu.
-- Notebook zawiera interaktywn� wizualizacj� LDA, kt�r� mo�na eksplorowa� po uruchomieniu kom�rki z kodem `pyLDAvis`.
+- Upewnij się, że ścieżka do katalogu z danymi (`dataset_path`) jest poprawnie ustawiona w pierwszej komórce kodu.
+- Notebook zawiera interaktywną wizualizację LDA, którą można eksplorować po uruchomieniu komórki z kodem `pyLDAvis`.
 
-## Zale�no�ci
+## Zależności
 
-Projekty wchodz�ce w sk�ad ca�ego rozwi�zania maj� nast�puj�ce zale�no�ci:
+Projekty wchodzące w skład rozwiązania mają następujące zależności:
 
-- **GeneticSharp:** Biblioteka .NET do algorytm�w genetycznych (u�ywana w projekcie g��wnym).
-- **BenchmarkDotNet:** Biblioteka do benchmarkingu kodu .NET (u�ywana w projekcie g��wnym).
-- **System.Text.Json:** Biblioteka do serializacji i deserializacji JSON (u�ywana w projekcie `RepoDownloader`).
-- **pyspark:** Biblioteka Pythona do obs�ugi Apache Spark (u�ywana w projekcie `DatasetFiltering`).
-- **pandas:** Biblioteka Pythona do analizy danych (u�ywana w projekcie `AnalysisVisualization`).
-- **matplotlib:** Biblioteka Pythona do tworzenia wykres�w (u�ywana w projekcie `AnalysisVisualization`).
-- **seaborn:** Biblioteka Pythona do tworzenia atrakcyjnych wykres�w statystycznych (u�ywana w projekcie `AnalysisVisualization`).
-- **scikit-learn:** Biblioteka Pythona do uczenia maszynowego (u�ywana w projekcie `AnalysisVisualization`).
-- **gensim:** Biblioteka Pythona do modelowania temat�w (u�ywana w projekcie `AnalysisVisualization`).
-- **pyLDAvis:** Biblioteka Pythona do interaktywnej wizualizacji modeli LDA (u�ywana w projekcie `AnalysisVisualization`).
-- **wordcloud:** Biblioteka Pythona do tworzenia chmur s��w (u�ywana w projekcie `AnalysisVisualization`).
+-   **GeneticSharp:** Biblioteka .NET do algorytmów genetycznych (używana w projekcie głównym).
+-   **BenchmarkDotNet:** Biblioteka do benchmarkingu kodu .NET (używana w projekcie głównym).
+-   **System.IO.Compression:** Biblioteka do obsługi archiwów ZIP (używana w projekcie `RepoDownloader`).
+-   **System.Text.Json:** Biblioteka do serializacji i deserializacji JSON (używana w projekcie `RepoDownloader`).
+-   **pyspark:** Biblioteka Pythona do obsługi Apache Spark (używana w projekcie `DatasetFiltering`).
+-   **pandas:** Biblioteka Pythona do analizy danych (używana w projekcie `AnalysisVisualization`).
+-   **matplotlib:** Biblioteka Pythona do tworzenia wykresów (używana w projekcie `AnalysisVisualization`).
+-   **seaborn:** Biblioteka Pythona do tworzenia atrakcyjnych wykresów statystycznych (używana w projekcie `AnalysisVisualization`).
+-   **scikit-learn:** Biblioteka Pythona do uczenia maszynowego (używana w projekcie `AnalysisVisualization`).
+-   **gensim:** Biblioteka Pythona do modelowania tematów (używana w projekcie `AnalysisVisualization`).
+-   **pyLDAvis:** Biblioteka Pythona do interaktywnej wizualizacji modeli LDA (używana w projekcie `AnalysisVisualization`).
+-   **wordcloud:** Biblioteka Pythona do tworzenia chmur słów (używana w projekcie `AnalysisVisualization`).
 
-## U�ycie (Projekt G��wny)
+## Użycie (Projekt Główny)
 
-Aby uruchomi� projekt g��wny:
+Aby uruchomić projekt główny:
 
 1. **Sklonuj repozytorium:**
 
-   ```bash
-   git clone <adres-repozytorium>
-   ```
+    ```bash
+    git clone <adres-repozytorium>
+    ```
 
-2. **Przejd� do katalogu projektu:**
+2. **Przejdź do katalogu projektu:**
 
-   ```bash
-   cd <katalog-projektu>
-   ```
+    ```bash
+    cd <katalog-projektu>
+    ```
 
-3. **Przywr�� zale�no�ci:**
+3. **Przywróć zależności:**
 
-   ```bash
-   dotnet restore
-   ```
+    ```bash
+    dotnet restore
+    ```
 
 4. **Zbuduj projekt:**
 
-   ```bash
-   dotnet build
-   ```
+    ```bash
+    dotnet build
+    ```
 
 5. **Uruchom projekt `DatasetFiltering` w celu wygenerowania pliku `repositories.json`**
 6. **Uruchom projekt `RepoDownloader` w celu pobrania i przygotowania danych.**
-7. **Zaktualizuj �cie�k� do zestawu danych:**
-   Otw�rz plik `Program.cs` w projekcie g��wnym i zmie� �cie�k� w konstruktorze `KeyboardFitness` na sw�j katalog z zestawem danych:
+7. **Zaktualizuj ścieżkę do zestawu danych:**
+    Otwórz plik `Program.cs` w projekcie głównym i zmień ścieżkę w konstruktorze `KeyboardFitness` na swój katalog z zestawem danych:
 
-   ```csharp
-   KeyboardFitness fitness = new("E:\\CSharpDataset"); // Zast�p w�asn� �cie�k� do danych
-   ```
+    ```csharp
+    KeyboardFitness fitness = new("E:\\CSharpDataset"); // Zastąp własną ścieżką do danych
+    ```
 
-8. **Uruchom aplikacj�:**
+8. **Uruchom aplikację:**
 
-   ```bash
-   dotnet run
-   ```
-
+    ```bash
+    dotnet run
+    ```
 9. **Uruchom notebook `AnalysisVisualization`**
-   - Otw�rz notebook Jupyter (`.ipynb` file) w �rodowisku Jupyter.
-   - Uruchom wszystkie kom�rki w notebooku.
+    - Otwórz notebook Jupyter (`.ipynb` file) w środowisku Jupyter.
+    - Uruchom wszystkie komórki w notebooku.
 
-Program wypisze najlepszy wynik dopasowania dla ka�dego pokolenia oraz ostateczne najlepsze znalezione rozwi�zanie.
+Program wypisze najlepszy wynik dopasowania dla każdego pokolenia oraz ostateczne najlepsze znalezione rozwiązanie.
 
 ## Dostosowanie
 
-Mo�esz dostosowa� nast�puj�ce aspekty algorytmu genetycznego:
+Możesz dostosować następujące aspekty algorytmu genetycznego:
 
-- **Rozmiar populacji:** Zmodyfikuj konstruktor `Population` w pliku `Program.cs`.
-- **Prawdopodobie�stwo mutacji:** Zmie� w�a�ciwo�� `MutationProbability` instancji `GeneticAlgorithm` w pliku `Program.cs`.
-- **Kryteria zako�czenia:** Zmodyfikuj w�a�ciwo�� `Termination` instancji `GeneticAlgorithm`.
-- **Wagi dla metryk dopasowania:** Dostosuj wagi (`fingerTravelWeight`, `fingerStrengthWeight`, itp.) w metodzie `KeyboardFitness.Evaluate`.
-- **Pocz�tkowy uk�ad:** Zmie� zmienn� `qwertyLayout` w `Program.cs`, aby rozpocz�� algorytm z innym uk�adem.
+-   **Rozmiar populacji:** Zmodyfikuj konstruktor `Population` w pliku `Program.cs`.
+-   **Prawdopodobieństwo mutacji:** Zmień właściwość `MutationProbability` instancji `GeneticAlgorithm` w pliku `Program.cs`.
+-   **Kryteria zakończenia:** Zmodyfikuj właściwość `Termination` instancji `GeneticAlgorithm`.
+-   **Wagi dla metryk dopasowania:** Dostosuj wagi (`fingerTravelWeight`, `fingerStrengthWeight`, itp.) w metodzie `KeyboardFitness.Evaluate`.
+-   **Początkowy układ:** Zmień zmienną `qwertyLayout` w `Program.cs`, aby rozpocząć algorytm z innym układem.
