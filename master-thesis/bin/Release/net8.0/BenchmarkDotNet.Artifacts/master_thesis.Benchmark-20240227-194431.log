@@ -1,0 +1,70 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 1 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true in D:\source\repos\master-thesis\bin\Release\net8.0\a2cedd81-07bc-4fad-ac62-d725a59700f6
+// command took 2.9 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true in D:\source\repos\master-thesis\bin\Release\net8.0\a2cedd81-07bc-4fad-ac62-d725a59700f6
+// command took 14.96 sec and exited with 1
+// start dotnet  build -c Release --no-restore --no-dependencies /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true in D:\source\repos\master-thesis\bin\Release\net8.0\a2cedd81-07bc-4fad-ac62-d725a59700f6
+// command took 3.82 sec and exited with 0
+// ***** Done, took 00:00:21 (21.98 sec)   *****
+// Found 1 benchmarks:
+//   Benchmark.Test: DefaultJob
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: Benchmark.Test: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet a2cedd81-07bc-4fad-ac62-d725a59700f6.dll --anonymousPipes 1876 1484 --benchmarkName master_thesis.Benchmark.Test --job Default --benchmarkId 0 in D:\source\repos\master-thesis\bin\Release\net8.0\a2cedd81-07bc-4fad-ac62-d725a59700f6\bin\Release\net8.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.13.12
+// Runtime=.NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX-512F+CD+BW+DQ+VL+VBMI,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 152900.00 ns, 152.9000 us/op
+WorkloadJitting  1: 1 op, 38227800.00 ns, 38.2278 ms/op
+
+WorkloadPilot    1: 2 op, 150200.00 ns, 75.1000 us/op
+WorkloadPilot    2: 3 op, 88600.00 ns, 29.5333 us/op
+WorkloadPilot    3: 4 op, 131100.00 ns, 32.7750 us/op
+WorkloadPilot    4: 5 op, 159100.00 ns, 31.8200 us/op
+WorkloadPilot    5: 6 op, 165100.00 ns, 27.5167 us/op
+WorkloadPilot    6: 7 op, 185500.00 ns, 26.5000 us/op
+WorkloadPilot    7: 8 op, 227900.00 ns, 28.4875 us/op
+WorkloadPilot    8: 9 op, 237300.00 ns, 26.3667 us/op
+WorkloadPilot    9: 10 op, 265400.00 ns, 26.5400 us/op
+WorkloadPilot   10: 11 op, 284800.00 ns, 25.8909 us/op
+WorkloadPilot   11: 12 op, 389900.00 ns, 32.4917 us/op
+WorkloadPilot   12: 13 op, 352600.00 ns, 27.1231 us/op
+WorkloadPilot   13: 14 op, 377400.00 ns, 26.9571 us/op
+WorkloadPilot   14: 15 op, 407900.00 ns, 27.1933 us/op
+WorkloadPilot   15: 16 op, 452100.00 ns, 28.2563 us/op
+WorkloadPilot   16: 32 op, 880200.00 ns, 27.5063 us/op
+WorkloadPilot   17: 64 op, 1753500.00 ns, 27.3984 us/op
+WorkloadPilot   18: 128 op, 3673000.00 ns, 28.6953 us/op
+WorkloadPilot   19: 256 op, 7460500.00 ns, 29.1426 us/op
+WorkloadPilot   20: 512 op, 13850000.00 ns, 27.0508 us/op
+WorkloadPilot   21: 1024 op, 29494500.00 ns, 28.8032 us/op
+WorkloadPilot   22: 2048 op, 46502500.00 ns, 22.7063 us/op
+WorkloadPilot   23: 4096 op, 64742500.00 ns, 15.8063 us/op
+WorkloadPilot   24: 8192 op, 33803600.00 ns, 4.1264 us/op
+WorkloadPilot   25: 16384 op, 61106700.00 ns, 3.7297 us/op
+WorkloadPilot   26: 32768 op, 125651100.00 ns, 3.8346 us/op
+WorkloadPilot   27: 65536 op, 248490100.00 ns, 3.7917 us/op
+WorkloadPilot   28: 131072 op, 578642500.00 ns, 4.4147 us/op
+
+WorkloadWarmup   1: 131072 op, 502725200.00 ns, 3.8355 us/op
+WorkloadWarmup   2: 131072 op, 505911100.00 ns, 3.8598 us/op
+WorkloadWarmup   3: 131072 op, 511890300.00 ns, 3.9054 us/op
+WorkloadWarmup   4: 131072 op, 514377100.00 ns, 3.9244 us/op
+WorkloadWarmup   5: 131072 op, 476693000.00 ns, 3.6369 us/op
+WorkloadWarmup   6: 131072 op, 516556200.00 ns, 3.9410 us/op
+WorkloadWarmup   7: 131072 op, 496634100.00 ns, 3.7890 us/op
+
+// BeforeActualRun

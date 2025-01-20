@@ -1,0 +1,70 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 1 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true in D:\source\repos\master-thesis\bin\Release\net8.0\7064180e-66e0-4543-8e33-4376648c380c
+// command took 1.93 sec and exited with 0
+// start dotnet  build -c Release --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true in D:\source\repos\master-thesis\bin\Release\net8.0\7064180e-66e0-4543-8e33-4376648c380c
+// command took 14.91 sec and exited with 1
+// start dotnet  build -c Release --no-restore --no-dependencies /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 /p:Deterministic=true /p:Optimize=true in D:\source\repos\master-thesis\bin\Release\net8.0\7064180e-66e0-4543-8e33-4376648c380c
+// command took 3.81 sec and exited with 0
+// ***** Done, took 00:00:20 (20.92 sec)   *****
+// Found 1 benchmarks:
+//   Benchmark.Test: DefaultJob
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: Benchmark.Test: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet 7064180e-66e0-4543-8e33-4376648c380c.dll --anonymousPipes 2100 1644 --benchmarkName master_thesis.Benchmark.Test --job Default --benchmarkId 0 in D:\source\repos\master-thesis\bin\Release\net8.0\7064180e-66e0-4543-8e33-4376648c380c\bin\Release\net8.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.13.12
+// Runtime=.NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX-512F+CD+BW+DQ+VL+VBMI,AES,BMI1,BMI2,FMA,LZCNT,PCLMUL,POPCNT VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 153500.00 ns, 153.5000 us/op
+WorkloadJitting  1: 1 op, 40821900.00 ns, 40.8219 ms/op
+
+WorkloadPilot    1: 2 op, 90600.00 ns, 45.3000 us/op
+WorkloadPilot    2: 3 op, 117100.00 ns, 39.0333 us/op
+WorkloadPilot    3: 4 op, 119000.00 ns, 29.7500 us/op
+WorkloadPilot    4: 5 op, 149800.00 ns, 29.9600 us/op
+WorkloadPilot    5: 6 op, 183300.00 ns, 30.5500 us/op
+WorkloadPilot    6: 7 op, 220500.00 ns, 31.5000 us/op
+WorkloadPilot    7: 8 op, 246600.00 ns, 30.8250 us/op
+WorkloadPilot    8: 9 op, 281200.00 ns, 31.2444 us/op
+WorkloadPilot    9: 10 op, 292900.00 ns, 29.2900 us/op
+WorkloadPilot   10: 11 op, 319900.00 ns, 29.0818 us/op
+WorkloadPilot   11: 12 op, 342900.00 ns, 28.5750 us/op
+WorkloadPilot   12: 13 op, 379300.00 ns, 29.1769 us/op
+WorkloadPilot   13: 14 op, 400800.00 ns, 28.6286 us/op
+WorkloadPilot   14: 15 op, 448900.00 ns, 29.9267 us/op
+WorkloadPilot   15: 16 op, 474500.00 ns, 29.6562 us/op
+WorkloadPilot   16: 32 op, 1119300.00 ns, 34.9781 us/op
+WorkloadPilot   17: 64 op, 1946100.00 ns, 30.4078 us/op
+WorkloadPilot   18: 128 op, 4062800.00 ns, 31.7406 us/op
+WorkloadPilot   19: 256 op, 7521900.00 ns, 29.3824 us/op
+WorkloadPilot   20: 512 op, 15879700.00 ns, 31.0150 us/op
+WorkloadPilot   21: 1024 op, 36674500.00 ns, 35.8149 us/op
+WorkloadPilot   22: 2048 op, 54249600.00 ns, 26.4891 us/op
+WorkloadPilot   23: 4096 op, 106172600.00 ns, 25.9210 us/op
+WorkloadPilot   24: 8192 op, 46909700.00 ns, 5.7263 us/op
+WorkloadPilot   25: 16384 op, 71526100.00 ns, 4.3656 us/op
+WorkloadPilot   26: 32768 op, 136921700.00 ns, 4.1785 us/op
+WorkloadPilot   27: 65536 op, 274091700.00 ns, 4.1823 us/op
+WorkloadPilot   28: 131072 op, 594306800.00 ns, 4.5342 us/op
+
+WorkloadWarmup   1: 131072 op, 569725400.00 ns, 4.3467 us/op
+WorkloadWarmup   2: 131072 op, 568389900.00 ns, 4.3365 us/op
+WorkloadWarmup   3: 131072 op, 576440800.00 ns, 4.3979 us/op
+WorkloadWarmup   4: 131072 op, 559416100.00 ns, 4.2680 us/op
+WorkloadWarmup   5: 131072 op, 560302700.00 ns, 4.2748 us/op
+WorkloadWarmup   6: 131072 op, 565604300.00 ns, 4.3152 us/op
+WorkloadWarmup   7: 131072 op, 562634800.00 ns, 4.2926 us/op
+
+// BeforeActualRu
