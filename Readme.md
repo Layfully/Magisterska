@@ -2,8 +2,8 @@
 
 Ten projekt, realizowany w ramach pracy magisterskiej, skupia się na dwóch głównych zadaniach:
 
-1. **Pobieraniu i przygotowaniu danych do analizy efektywności układów klawiatury.**
-2. **Wykorzystaniu algorytmu genetycznego do optymalizacji układów klawiatury w celu poprawy efektywności pisania.**
+1. **Pobieraniu i przygotowaniu danych do analizy efektywności układów klawiatury oraz jako korpus dla algorytmu genetycznego.**
+2. **Wykorzystaniu algorytmu genetycznego do znalezienia optymalnego ukladu klawiatury w celu poprawienia ergonomii i efektywnosci pracy programistow.**
 
 Do implementacji algorytmu genetycznego wykorzystywana jest biblioteka GeneticSharp, a do analizy wydajności - BenchmarkDotNet.
 Dodatkowo, projekt zawiera skrypt Jupyter Notebook do analizy danych i wizualizacji wyników.
