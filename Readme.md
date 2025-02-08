@@ -1,4 +1,4 @@
-# Ewolucyjne Projektowanie Układów Klawiatury (Praca Magisterska)
+# Analiza i projektowanie optymalnego układu klawiatury dla programistów
 
 Ten projekt, realizowany w ramach pracy magisterskiej, skupia się na dwóch głównych zadaniach:
 
