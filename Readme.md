@@ -5,23 +5,22 @@ Ten projekt, realizowany w ramach pracy magisterskiej, skupia się na dwóch gł
 1. **Pobieraniu i przygotowaniu danych do analizy efektywności układów klawiatury oraz jako korpus dla algorytmu genetycznego.**
 2. **Wykorzystaniu algorytmu genetycznego do znalezienia optymalnego ukladu klawiatury w celu poprawienia ergonomii i efektywnosci pracy programistow.**
 
-Do implementacji algorytmu genetycznego wykorzystywana jest biblioteka GeneticSharp, a do analizy wydajności - BenchmarkDotNet.
-Dodatkowo, projekt zawiera skrypt Jupyter Notebook do analizy danych i wizualizacji wyników.
+Do implementacji algorytmu genetycznego wykorzystywana jest biblioteka [GeneticSharp](https://github.com/giacomelli/GeneticSharp). W celu odfiltrowania repozytoriow spelniajacych kryteria jakości wykorzystano [PySpark](https://spark.apache.org/docs/latest/api/python/index.html).
+Dodatkowo, projekt zawiera skrypt [Jupyter Notebook](https://jupyter.org/) do analizy danych i wizualizacji wyników.
 
 ## Struktura Rozwiązania
-
-Rozwiązanie składa się z trzech projektów:
+Rozwiązanie składa się z czterech projektów:
 
 ### 1. RepoDownloader
 
-Ten projekt jest odpowiedzialny za pobieranie i filtrowanie plików z repozytoriów GitHub.
+Ten projekt jest odpowiedzialny za pobieranie i odfiltrowywanie plików o danych rozszerzeniach z repozytoriów GitHub.
 
 #### **Opis:**
 
 Program pobiera repozytoria z listy zdefiniowanej w pliku `repositories.json`. Następnie, dla każdego repozytorium, wykonywane są następujące kroki:
 
 1. **Klonowanie repozytorium:**  Repozytorium jest klonowane lokalnie za pomocą komendy `git clone` z opcjami `--filter=blob:none --no-checkout --depth 1 --sparse`, co pozwala na pobranie struktury repozytorium bez pobierania zawartości plików i tylko z ostatniego commita.
-2. **Filtrowanie plików:** Z użyciem `git status --porcelain` sprawdzane są rozszerzenia plików w repozytorium. Następnie pliki są filtrowane na podstawie tablicy dozwolonych rozszerzeń: `cs`, `xaml`, `resx`, `md`, `ps1`, `csx`, `json`, `xml`, `yml`, `aspx`, `ascx`, `master`, `cshtml`, `js`, `ts`, `web.config`, `css`, `bat`, `psi`, `razor`, `sql`.
+2. **Filtrowanie plików:** Z użyciem `git status --porcelain` sprawdzane są rozszerzenia plików w repozytorium. Następnie pliki są odfiltrowywane na podstawie listy dozwolonych rozszerzeń: `cs`, `xaml`, `resx`, `md`, `ps1`, `csx`, `json`, `xml`, `yml`, `aspx`, `ascx`, `master`, `cshtml`, `js`, `ts`, `web.config`, `css`, `bat`, `psi`, `razor`, `sql`.
 3. **Pobieranie wybranych plików:** Jeśli w repozytorium znajdują się pliki o dozwolonych rozszerzeniach, to są one pobierane do archiwum ZIP za pomocą polecenia `git archive`.
 4. **Rozpakowanie i przeniesienie plików:** Archiwum ZIP jest rozpakowywane, a następnie pliki o dozwolonych rozszerzeniach są przenoszone do docelowego katalogu (`D:\\CSharpDataset`), zachowując strukturę katalogów z repozytorium. W przypadku konfliktów nazw plików, do nazwy pliku dodawany jest unikalny identyfikator.
 5. **Usuwanie sklonowanego repozytorium** Po przeniesieniu plików, tymczasowe repozytorium jest usuwane.
@@ -50,10 +49,10 @@ Przed uruchomieniem należy:
     ```
 
     Przykład: `{"name": "StephenCleary/AsyncEx", "url": "https://api.github.com/repos/StephenCleary/AsyncEx"}`
-3. Upewnij sie, że masz zainstalowanego klienta Git i jest on dostępny w zmiennej środowiskowej `PATH`.
+3. Upewnić sie, że zainstalowano klienta Git i jest on dostępny w zmiennej środowiskowej `PATH`.
 4. Uruchomić projekt `RepoDownloader`.
 
-### 2. Projekt Główny (Ewolucyjne Projektowanie Układów Klawiatury)
+### 2. Projekt Główny (master_thesis)
 
 Ten projekt wykorzystuje pobrane dane do optymalizacji układu klawiatury za pomocą algorytmu genetycznego.
 
@@ -70,14 +69,14 @@ Projekt implementuje algorytm genetyczny do optymalizacji układów klawiatury. 
 -   **KeyboardMutation.cs:** Implementuje operację mutacji, która wprowadza losowe zmiany w chromosomie.
 -   **FitnessScoreCalculator.cs:** Zawiera metody do obliczania różnych metryk związanych z efektywnością pisania, takich jak odległość podróży palców, siła nacisku palców, naprzemienność rąk i kierunek uderzenia.
 -   **DatasetLoader.cs:** Zapewnia funkcjonalność do ładowania zestawu danych plików tekstowych do oceny układów klawiatury.
--   **Benchmark.cs:** Zawiera testy benchmarkowe do pomiaru wydajności określonych fragmentów kodu.
+-   **Benchmark.cs:** Zawiera testy wydajnościowe do pomiaru wydajności określonych fragmentów kodu.
 
 #### **Algorytm Genetyczny**
 
 Rdzeniem projektu jest algorytm genetyczny, który iteracyjnie ewoluuje populację układów klawiatury, aby znaleźć optymalne rozwiązanie. Algorytm wykorzystuje następujące komponenty:
 
 -   **Populacja:** Zbiór osobników `KeyboardChromosome` reprezentujących różne układy klawiatury.
--   **Funkcja Fitness:** Klasa `KeyboardFitness` ocenia dopasowanie każdego chromosomu na podstawie metryk, takich jak odległość podróży palca, współczynnik siły nacisku palca, naprzemienność rąk i kierunek uderzenia. Wynik dopasowania jest obliczany przy użyciu ważonej kombinacji znormalizowanych wyników z tych metryk. Do normalizacji wyników używany jest układ QWERTY.
+-   **Funkcja Fitness:** Klasa `KeyboardFitness` ocenia dopasowanie każdego chromosomu na podstawie metryk, takich jak całkowity pokonany dystans przez palce, współczynnik siły nacisku palca, naprzemienność rąk i kierunek uderzenia. Wynik dopasowania jest obliczany przy użyciu ważonej kombinacji znormalizowanych wyników z tych metryk. Do normalizacji wyników używany jest układ QWERTY.
 -   **Selekcja:** Metoda `EliteSelection` wybiera najlepiej przystosowane osobniki z populacji, aby stały się rodzicami dla następnego pokolenia.
 -   **Krzyżowanie:** Metoda `KeyboardCrossover` łączy dwa chromosomy rodzicielskie, aby wygenerować potomstwo z połączeniem ich cech.
 -   **Mutacja:** Metoda `KeyboardMutation` wprowadza losowe zmiany w genach chromosomu (literach), aby utrzymać różnorodność w populacji.
@@ -87,7 +86,7 @@ Rdzeniem projektu jest algorytm genetyczny, który iteracyjnie ewoluuje populacj
 
 Klasa `KeyboardFitness` oblicza dopasowanie układu klawiatury na podstawie następujących metryk:
 
--   **Odległość Podróży (Travel Distance):** Całkowita odległość, jaką muszą pokonać palce, aby napisać dany tekst. Mniejsza odległość jest lepsza.
+-   **Całkowita odległość pokonana przez palce (Travel Distance):** Całkowita odległość, jaką muszą pokonać palce, aby napisać dany tekst. Mniejsza odległość jest lepsza.
 -   **Współczynnik Siły Nacisku Palca (Finger Strength Factor):** Miara wysiłku wymaganego do naciśnięcia klawiszy, biorąc pod uwagę siłę każdego palca. Mniejszy wysiłek jest lepszy.
 -   **Naprzemienność Rąk (Hand Alternation):** Częstotliwość przełączania się między lewą a prawą ręką podczas pisania. Większa naprzemienność jest generalnie lepsza.
 -   **Kierunek Uderzenia (Hit Direction):** Częstotliwość naciskania klawiszy w "niewłaściwym" kierunku (np. przesuwanie palca wskazującego w lewo na lewej ręce). Mniejsza liczba uderzeń w złym kierunku jest lepsza.
@@ -108,7 +107,7 @@ Ten projekt, napisany w Pythonie, służy do wstępnego filtrowania i przygotowa
 
 #### **Opis:**
 
-Skrypt przetwarza pliki JSON pobrane z GHTorrent, wykorzystując Apache Spark do szybkiego przetwarzania dużych zbiorów danych. Dla każdego pliku JSON:
+Skrypt przetwarza pliki JSON pobrane z Github Archive, wykorzystując Apache Spark do szybkiego przetwarzania dużych zbiorów danych. Dla każdego pliku JSON:
 
 1. **Wczytanie danych:** Plik JSON jest wczytywany do DataFrame'u Spark.
 2. **Selekcja danych:** Tworzona jest tymczasowa tabela `github_data`, a następnie wykonywane jest zapytanie SQL, które wybiera unikalne pary `(nazwa_repozytorium, url_repozytorium)` spełniające określone warunki:
@@ -127,12 +126,12 @@ Na koniec, po przetworzeniu wszystkich plików, ostateczny DataFrame `all_result
 #### **Uruchomienie:**
 
 1. Zainstaluj wymagane biblioteki: `pip install pyspark`
-2. Skonfiguruj zmienną `data_directory` w skrypcie, aby wskazywała na katalog z plikami JSON z GHTorrent.
+2. Skonfiguruj zmienną `data_directory` w skrypcie, aby wskazywała na katalog z plikami JSON z Github Archive.
 3. Uruchom skrypt: `python <nazwa_skryptu>.py`
 
 #### **Uwagi:**
 
--   Skrypt zakłada, że pliki JSON z GHTorrent są skompresowane gzipem i mają rozszerzenie `.json.gz`.
+-   Skrypt zakłada, że pliki JSON z Github Archive są skompresowane gzipem i mają rozszerzenie `.json.gz`.
 -   Wyniki są zapisywane w katalogu `output` w formacie JSON.
 
 ### 4. Analiza i Wizualizacja (Jupyter Notebook)
@@ -193,17 +192,15 @@ Notebook wykorzystuje biblioteki `pandas`, `matplotlib`, `seaborn`, `scikit-lear
 Projekty wchodzące w skład rozwiązania mają następujące zależności:
 
 -   **GeneticSharp:** Biblioteka .NET do algorytmów genetycznych (używana w projekcie głównym).
--   **BenchmarkDotNet:** Biblioteka do benchmarkingu kodu .NET (używana w projekcie głównym).
--   **System.IO.Compression:** Biblioteka do obsługi archiwów ZIP (używana w projekcie `RepoDownloader`).
--   **System.Text.Json:** Biblioteka do serializacji i deserializacji JSON (używana w projekcie `RepoDownloader`).
+-   **BenchmarkDotNet:** Biblioteka do testów wydajnościowych kodu .NET (używana w projekcie głównym).
 -   **pyspark:** Biblioteka Pythona do obsługi Apache Spark (używana w projekcie `DatasetFiltering`).
--   **pandas:** Biblioteka Pythona do analizy danych (używana w projekcie `AnalysisVisualization`).
--   **matplotlib:** Biblioteka Pythona do tworzenia wykresów (używana w projekcie `AnalysisVisualization`).
--   **seaborn:** Biblioteka Pythona do tworzenia atrakcyjnych wykresów statystycznych (używana w projekcie `AnalysisVisualization`).
--   **scikit-learn:** Biblioteka Pythona do uczenia maszynowego (używana w projekcie `AnalysisVisualization`).
--   **gensim:** Biblioteka Pythona do modelowania tematów (używana w projekcie `AnalysisVisualization`).
--   **pyLDAvis:** Biblioteka Pythona do interaktywnej wizualizacji modeli LDA (używana w projekcie `AnalysisVisualization`).
--   **wordcloud:** Biblioteka Pythona do tworzenia chmur słów (używana w projekcie `AnalysisVisualization`).
+-   **pandas:** Biblioteka Pythona do analizy danych (używana w projekcie `DataMining`).
+-   **matplotlib:** Biblioteka Pythona do tworzenia wykresów (używana w projekcie `DataMining`).
+-   **seaborn:** Biblioteka Pythona do tworzenia atrakcyjnych wykresów statystycznych (używana w projekcie `DataMining`).
+-   **scikit-learn:** Biblioteka Pythona do uczenia maszynowego (używana w projekcie `DataMining`).
+-   **gensim:** Biblioteka Pythona do modelowania tematów (używana w projekcie `DataMining`).
+-   **pyLDAvis:** Biblioteka Pythona do interaktywnej wizualizacji modeli LDA (używana w projekcie `DataMining`).
+-   **wordcloud:** Biblioteka Pythona do tworzenia chmur słów (używana w projekcie `DataMining`).
 
 ## Użycie (Projekt Główny)
 
