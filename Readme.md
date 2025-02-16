@@ -168,7 +168,7 @@ Projekt wykorzystuje zestaw danych plików tekstowych, pobranych i przygotowanyc
 
 Moduł ładujący pobiera do 3000 plików, zachowując pożądany stosunek typów plików.
 
-### 5. Analiza i Wizualizacja (Jupyter Notebook, Python)
+### 5. Analiza i Wizualizacja (DataAnalysis) (Jupyter Notebook, Python)
 
 Ten projekt zawiera notebook Jupyter do analizy i wizualizacji danych.
 
@@ -228,13 +228,13 @@ Projekty wchodzące w skład rozwiązania mają następujące zależności:
 -   **GeneticSharp:** Biblioteka .NET do algorytmów genetycznych (używana w projekcie głównym).
 -   **BenchmarkDotNet:** Biblioteka do testów wydajnościowych kodu .NET (używana w projekcie głównym).
 -   **pyspark:** Biblioteka Pythona do obsługi Apache Spark (używana w projekcie `DatasetFiltering`).
--   **pandas:** Biblioteka Pythona do analizy danych (używana w projekcie `DataMining`).
--   **matplotlib:** Biblioteka Pythona do tworzenia wykresów (używana w projekcie `DataMining`).
--   **seaborn:** Biblioteka Pythona do tworzenia atrakcyjnych wykresów statystycznych (używana w projekcie `DataMining`).
--   **scikit-learn:** Biblioteka Pythona do uczenia maszynowego (używana w projekcie `DataMining`).
--   **gensim:** Biblioteka Pythona do modelowania tematów (używana w projekcie `DataMining`).
--   **pyLDAvis:** Biblioteka Pythona do interaktywnej wizualizacji modeli LDA (używana w projekcie `DataMining`).
--   **wordcloud:** Biblioteka Pythona do tworzenia chmur słów (używana w projekcie `DataMining`).
+-   **pandas:** Biblioteka Pythona do analizy danych (używana w projekcie `DataAnalysis`).
+-   **matplotlib:** Biblioteka Pythona do tworzenia wykresów (używana w projekcie `DataAnalysis`).
+-   **seaborn:** Biblioteka Pythona do tworzenia atrakcyjnych wykresów statystycznych (używana w projekcie `DataAnalysis`).
+-   **scikit-learn:** Biblioteka Pythona do uczenia maszynowego (używana w projekcie `DataAnalysis`).
+-   **gensim:** Biblioteka Pythona do modelowania tematów (używana w projekcie `DataAnalysis`).
+-   **pyLDAvis:** Biblioteka Pythona do interaktywnej wizualizacji modeli LDA (używana w projekcie `DataAnalysis`).
+-   **wordcloud:** Biblioteka Pythona do tworzenia chmur słów (używana w projekcie `DataAnalysis`).
 
 ## Użycie (Projekt Główny)
 
