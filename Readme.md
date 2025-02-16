@@ -9,15 +9,82 @@ Do implementacji algorytmu genetycznego wykorzystywana jest biblioteka [GeneticS
 Dodatkowo, projekt zawiera skrypt [Jupyter Notebook](https://jupyter.org/) do analizy danych i wizualizacji wyników.
 
 ## Struktura Rozwiązania
-Rozwiązanie składa się z czterech projektów:
+Rozwiązanie składa się z pięciu projektów:
 
-### 1. RepoDownloader (C#, .NET)
+### 1. GithubArchiveDownloader (PowerShell)
+Ten skrypt, napisany w PowerShell, służy do pobierania danych z Github Archive.
+Opis:
+
+Skrypt pobiera pliki archiwa (.gz) z plikami JSON na Github Archive zawierające wszystkie zarejestrowane, zdarzenia i operacje na określony okres (rok 2023) w systemie GitHub. Dla każdego pliku:
+
+    Generowanie URL: Na podstawie roku, miesiąca, dnia i godziny generowany jest URL do pliku archiwum JSON na serwerze Github Archive.
+
+    Pobieranie pliku: Plik jest pobierany za pomocą polecenia Invoke-WebRequest i zapisywany w lokalnym katalogu.
+
+Skrypt iteruje po miesiącach (od sierpnia do grudnia), dniach (od 16 do 31) i godzinach w dniu zaczynając od 20 i pobiera dane godzinowe. Dzięki temu pobierany jest wycinek danych, a nie cały rok, co znacznie skraca czas pobierania, zmniejsza rozmiar danych, a także pozwala na pobieranie zbioru zdarzeń w częściach z możliwością przerywania. Pozwala to na ograniczenie zakresu danych wejściowych do projektu DatasetFiltering.
+Pliki:
+
+    GithubArchiveDownloader.ps1: Główny plik skryptu, zawierający logikę pobierania danych.
+
+Wymagania:
+
+    PowerShell
+
+Uruchomienie:
+
+    Skonfiguruj zmienną $outputDirectory w skrypcie, aby wskazywała na katalog, w którym mają być zapisywane pobrane pliki.
+
+    Uruchom skrypt: .\GithubArchiveDownloader.ps1
+
+Uwagi:
+
+    Skrypt zakłada, że pliki JSON na serwerze Github Archive są skompresowane gzipem i mają rozszerzenie .json.gz.
+
+    Skrypt pobiera dane tylko z roku 2023, od 16 sierpnia, od godziny 20:00, do końca roku. Można to zmodyfikować, zmieniając wartości $startMonth, $startDay i $startHour.
+
+    Wyniki są zapisywane w katalogu określonym przez zmienną $outputDirectory.
+
+### 2. DatasetFiltering (Python)
+
+Ten projekt, napisany w Pythonie, służy do wstępnego filtrowania i przygotowania danych potrzebnych do zasilenia projektu `RepoDownloader`.
+
+#### **Opis:**
+
+Skrypt przetwarza pliki archiwum JSON pobrane z Github Archive za pomocą skryptu `GithubArchiveDownloader`, wykorzystując Apache Spark do szybkiego przetwarzania dużych zbiorów danych. Dla każdego pliku JSON:
+
+1. **Wczytanie danych:** Plik JSON jest wczytywany do DataFrame'u Spark.
+2. **Selekcja danych:** Tworzona jest tymczasowa tabela `github_data`, a następnie wykonywane jest zapytanie SQL, które wybiera unikalne pary `(nazwa_repozytorium, url_repozytorium)` spełniające określone warunki:
+    -   Typ zdarzenia to `ForkEvent`, a język repozytorium to `C#` LUB
+    -   Typ zdarzenia to `PullRequestEvent`, język repozytorium to `C#`, a liczba gwiazdek repozytorium jest większa niż 10.
+3. **Łączenie wyników:** Wyniki z każdego pliku są łączone w jeden DataFrame `all_results`.
+4. **Zapis wyników:** Co 10 przetworzonych plików, DataFrame `all_results` jest czyszczony z duplikatów i zapisywany do pliku JSON w katalogu `output`.
+
+Na koniec, po przetworzeniu wszystkich plików, ostateczny DataFrame `all_results` (bez duplikatów) jest zapisywany do pliku `final_result_all.json`.
+
+#### **Wymagania:**
+
+-   Python 3.x
+-   Apache Spark (PySpark)
+
+#### **Uruchomienie:**
+
+1. Zainstaluj wymagane biblioteki: `pip install pyspark`
+2. Skonfiguruj zmienną `data_directory` w skrypcie, aby wskazywała na katalog z plikami JSON z Github Archive.
+3. Uruchom skrypt: `python <nazwa_skryptu>.py`
+
+#### **Uwagi:**
+
+-   Skrypt zakłada, że pliki JSON z Github Archive są skompresowane gzipem i mają rozszerzenie `.json.gz`.
+-   Wyniki są zapisywane w katalogu `output` w formacie JSON.
+
+
+### 3. RepoDownloader (C#, .NET)
 
 Ten projekt jest odpowiedzialny za pobieranie i odfiltrowywanie plików o danych rozszerzeniach z repozytoriów GitHub.
 
 #### **Opis:**
 
-Program pobiera repozytoria z listy zdefiniowanej w pliku `repositories.json`. Następnie, dla każdego repozytorium, wykonywane są następujące kroki:
+Program pobiera repozytoria z listy zdefiniowanej w pliku `repositories.json` (stworzony przez bezpośrednie zapytanie na Google BigQuery opisane w pracy, lub przy pomocy projektów GithubArchiveDownloader + DatasetFiltering). Następnie, dla każdego repozytorium, wykonywane są następujące kroki:
 
 1. **Klonowanie repozytorium:**  Repozytorium jest klonowane lokalnie za pomocą komendy `git clone` z opcjami `--filter=blob:none --no-checkout --depth 1 --sparse`, co pozwala na pobranie struktury repozytorium bez pobierania zawartości plików i tylko z ostatniego commita.
 2. **Filtrowanie plików:** Z użyciem `git status --porcelain` sprawdzane są rozszerzenia plików w repozytorium. Następnie pliki są odfiltrowywane na podstawie listy dozwolonych rozszerzeń: `cs`, `xaml`, `resx`, `md`, `ps1`, `csx`, `json`, `xml`, `yml`, `aspx`, `ascx`, `master`, `cshtml`, `js`, `ts`, `web.config`, `css`, `bat`, `psi`, `razor`, `sql`.
@@ -52,7 +119,7 @@ Przed uruchomieniem należy:
 3. Upewnić sie, że zainstalowano klienta Git i jest on dostępny w zmiennej środowiskowej `PATH`.
 4. Uruchomić projekt `RepoDownloader`.
 
-### 2. Projekt Główny (GeneticAlgorithm) (C#, .NET)
+### 4. Projekt Główny (GeneticAlgorithm) (C#, .NET)
 
 Ten projekt wykorzystuje pobrane dane do optymalizacji układu klawiatury za pomocą algorytmu genetycznego.
 
@@ -101,40 +168,7 @@ Projekt wykorzystuje zestaw danych plików tekstowych, pobranych i przygotowanyc
 
 Moduł ładujący pobiera do 3000 plików, zachowując pożądany stosunek typów plików.
 
-### 3. DatasetFiltering (Python)
-
-Ten projekt, napisany w Pythonie, służy do wstępnego filtrowania i przygotowania danych potrzebnych do zasilenia projektu `RepoDownloader`.
-
-#### **Opis:**
-
-Skrypt przetwarza pliki JSON pobrane z Github Archive, wykorzystując Apache Spark do szybkiego przetwarzania dużych zbiorów danych. Dla każdego pliku JSON:
-
-1. **Wczytanie danych:** Plik JSON jest wczytywany do DataFrame'u Spark.
-2. **Selekcja danych:** Tworzona jest tymczasowa tabela `github_data`, a następnie wykonywane jest zapytanie SQL, które wybiera unikalne pary `(nazwa_repozytorium, url_repozytorium)` spełniające określone warunki:
-    -   Typ zdarzenia to `ForkEvent`, a język repozytorium to `C#` LUB
-    -   Typ zdarzenia to `PullRequestEvent`, język repozytorium to `C#`, a liczba gwiazdek repozytorium jest większa niż 10.
-3. **Łączenie wyników:** Wyniki z każdego pliku są łączone w jeden DataFrame `all_results`.
-4. **Zapis wyników:** Co 10 przetworzonych plików, DataFrame `all_results` jest czyszczony z duplikatów i zapisywany do pliku JSON w katalogu `output`.
-
-Na koniec, po przetworzeniu wszystkich plików, ostateczny DataFrame `all_results` (bez duplikatów) jest zapisywany do pliku `final_result_all.json`.
-
-#### **Wymagania:**
-
--   Python 3.x
--   Apache Spark (PySpark)
-
-#### **Uruchomienie:**
-
-1. Zainstaluj wymagane biblioteki: `pip install pyspark`
-2. Skonfiguruj zmienną `data_directory` w skrypcie, aby wskazywała na katalog z plikami JSON z Github Archive.
-3. Uruchom skrypt: `python <nazwa_skryptu>.py`
-
-#### **Uwagi:**
-
--   Skrypt zakłada, że pliki JSON z Github Archive są skompresowane gzipem i mają rozszerzenie `.json.gz`.
--   Wyniki są zapisywane w katalogu `output` w formacie JSON.
-
-### 4. Analiza i Wizualizacja (Jupyter Notebook, Python)
+### 5. Analiza i Wizualizacja (Jupyter Notebook, Python)
 
 Ten projekt zawiera notebook Jupyter do analizy i wizualizacji danych.
 
