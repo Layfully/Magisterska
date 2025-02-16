@@ -52,7 +52,7 @@ Przed uruchomieniem należy:
 3. Upewnić sie, że zainstalowano klienta Git i jest on dostępny w zmiennej środowiskowej `PATH`.
 4. Uruchomić projekt `RepoDownloader`.
 
-### 2. Projekt Główny (master_thesis)
+### 2. Projekt Główny (GeneticAlgorithm)
 
 Ten projekt wykorzystuje pobrane dane do optymalizacji układu klawiatury za pomocą algorytmu genetycznego.
 
