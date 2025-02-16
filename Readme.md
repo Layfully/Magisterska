@@ -11,7 +11,7 @@ Dodatkowo, projekt zawiera skrypt [Jupyter Notebook](https://jupyter.org/) do an
 ## Struktura Rozwiązania
 Rozwiązanie składa się z czterech projektów:
 
-### 1. RepoDownloader
+### 1. RepoDownloader (C#, .NET)
 
 Ten projekt jest odpowiedzialny za pobieranie i odfiltrowywanie plików o danych rozszerzeniach z repozytoriów GitHub.
 
@@ -52,7 +52,7 @@ Przed uruchomieniem należy:
 3. Upewnić sie, że zainstalowano klienta Git i jest on dostępny w zmiennej środowiskowej `PATH`.
 4. Uruchomić projekt `RepoDownloader`.
 
-### 2. Projekt Główny (GeneticAlgorithm)
+### 2. Projekt Główny (GeneticAlgorithm) (C#, .NET)
 
 Ten projekt wykorzystuje pobrane dane do optymalizacji układu klawiatury za pomocą algorytmu genetycznego.
 
@@ -134,7 +134,7 @@ Na koniec, po przetworzeniu wszystkich plików, ostateczny DataFrame `all_result
 -   Skrypt zakłada, że pliki JSON z Github Archive są skompresowane gzipem i mają rozszerzenie `.json.gz`.
 -   Wyniki są zapisywane w katalogu `output` w formacie JSON.
 
-### 4. Analiza i Wizualizacja (Jupyter Notebook)
+### 4. Analiza i Wizualizacja (Jupyter Notebook, Python)
 
 Ten projekt zawiera notebook Jupyter do analizy i wizualizacji danych.
 
